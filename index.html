@@ -1,90 +1,68 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#17131e"><title>Devilflygotchi</title>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#141019"><title>Devilflygotchi — Galeria animada</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#17131e;color:#f3edf8;font:15px system-ui,sans-serif}main{max-width:490px;margin:auto;padding:18px}h1{font-size:24px;letter-spacing:2px;margin:4px 0}header{display:flex;justify-content:space-between;align-items:center}.tag{font-size:11px;color:#c6b8d5}canvas{display:block;width:min(100%,390px);aspect-ratio:3/4;height:auto;margin:16px auto;background:#ded7e8;border:7px solid #655477;border-radius:16px;image-rendering:pixelated}#status{min-height:45px;text-align:center;color:#e6d7f0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#2a2234;border-radius:10px;padding:9px;font-size:12px}.stat strong{display:block;font-size:15px;margin:4px 0}progress{width:100%;accent-color:#ae8ce0}.actions{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}button{font:inherit;color:#fff;background:#443353;border:1px solid #806a94;border-radius:11px;padding:13px 8px;cursor:pointer}button:disabled{opacity:.45}button:focus-visible{outline:3px solid #e3c7ff}.details{margin-top:18px;font-size:13px;color:#c8bdd1;line-height:1.6}a{color:#d7b9ff}#batLabel{font-size:12px;text-align:center;color:#a99db5}
-</style></head><body><main><header><h1>DEVILFLYGOTCHI</h1><span class="tag">NOVA GERAÇÃO · ALFA</span></header>
-<canvas id="screen" width="240" height="320" role="img" aria-label="Personagem e morcego na arena"></canvas>
-<div id="status" role="status" aria-live="polite"></div>
-<div class="stats"><div class="stat">🍬 Fome<strong id="hungerText"></strong><progress id="hunger" max="100"></progress></div><div class="stat">♥ Amizade<strong id="bondText"></strong><progress id="bond" max="100"></progress></div><div class="stat">⚡ Energia<strong id="energyText"></strong><progress id="energy" max="100"></progress></div></div>
-<div class="actions"><button id="feed">🍬 Alimentar</button><button id="play">♥ Brincar</button><button id="rest">💤 Dormir / acordar</button><button id="bat">🦇 Visitar morcego</button><button id="reset">↻ Novo personagem</button><button id="fullscreen">⛶ Tela cheia</button></div>
-<p id="batLabel">O morcego faz parte do mundo e não é uma evolução.</p>
-<div class="details"><div id="stage"></div><div id="growth"></div><p>Recomeço do jogo com regras próprias: nasce no <b>pack 21</b>, evolui para <b>24</b> ou <b>26</b> quando bem cuidado, ou para <b>17</b> se negligenciado. As regras desta versão são novas, não recuperadas do JAR.</p><a href="./Devil_240x320.jar">JAR original preservado</a></div>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#141019;color:#f4eff8;font:15px system-ui,-apple-system,sans-serif}main{max-width:580px;margin:0 auto;padding:18px 16px 32px}header{display:flex;align-items:baseline;justify-content:space-between;gap:10px}h1{font-size:22px;letter-spacing:1px;margin:5px 0}.sub{color:#b8a9c4;font-size:12px}.chooser{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:16px 0}button{background:#33283f;border:1px solid #69577a;border-radius:12px;color:#f7f1fc;padding:12px 8px;font:inherit;cursor:pointer}button[aria-pressed=true]{background:#745293;border-color:#d7b5ff}button:focus-visible,input:focus-visible{outline:2px solid #d7b5ff;outline-offset:2px}.screen{background:#c9c1d6;border:7px solid #635274;border-radius:17px;overflow:hidden;max-width:400px;margin:0 auto;position:relative}canvas{display:block;width:100%;aspect-ratio:3/4;image-rendering:pixelated}.controls{display:flex;gap:8px;align-items:center;justify-content:center;margin:16px auto;flex-wrap:wrap}.controls button{min-width:64px}.controls label{font-size:13px;color:#cfc1da}input[type=range]{accent-color:#b58bdb;width:120px}.meta{text-align:center;margin:10px 0 0;color:#e6d8ef;min-height:23px}.note{font-size:12px;line-height:1.6;color:#b7a9c4;margin-top:20px}a{color:#d5b8f4}.error{color:#ffd1d1}
+</style></head><body><main>
+<header><h1>DEVILFLYGOTCHI</h1><span class="sub">GALERIA ANIMADA</span></header>
+<p class="sub">Escolha o personagem para ver todos os seus quadros originais.</p>
+<div class="chooser" id="chooser" aria-label="Selecionar personagem">
+<button data-id="bat" aria-pressed="false">🦇 Morcego</button>
+<button data-id="17" aria-pressed="false">17</button>
+<button data-id="19" aria-pressed="false">19</button>
+<button data-id="21" aria-pressed="true">21</button>
+<button data-id="24" aria-pressed="false">24</button>
+<button data-id="26" aria-pressed="false">26</button>
+</div>
+<div class="screen"><canvas id="screen" width="240" height="320" aria-label="Animação do personagem selecionado"></canvas></div>
+<p id="meta" class="meta" role="status">Carregando imagens…</p>
+<div class="controls">
+<button id="prev" aria-label="Quadro anterior">◀</button>
+<button id="toggle" aria-label="Pausar ou reproduzir">⏸ Pausar</button>
+<button id="next" aria-label="Próximo quadro">▶</button>
+<label for="speed">Velocidade</label><input id="speed" type="range" min="100" max="1400" step="50" value="600">
+</div>
+<p class="note">Esta é uma prévia animada dos sprites originais. Os quadros são reproduzidos em ordem numérica; ainda não representam as sequências ou os tempos do JAR. Nenhum sprite é recortado ou redesenhado. <a href="./Devil_240x320.jar">JAR original</a>.</p>
 </main><script>
 'use strict';
-const $=s=>document.querySelector(s), canvas=$('#screen'),ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
-const KEY='devilflygotchi-rebuild-v1', NOW=()=>Date.now(), clamp=v=>Math.max(0,Math.min(100,v));
-const fresh=()=>({form:21,hunger:80,bond:65,energy:85,age:0,care:0,neglect:0,feeds:0,plays:0,sleep:false,batVisits:0,last:NOW(),created:NOW()});
-let s;try{s={...fresh(),...JSON.parse(localStorage.getItem(KEY)||'null')}}catch{s=fresh()}
-if(![21,24,26,17].includes(s.form))s=fresh();
-let sprites=new Map(),bat=null,pose=0,action='idle',actionUntil=0,notice='Cuide do seu novo companheiro!',lastRender=0;
-const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch{}};
-const say=t=>{notice=t;$('#status').textContent=t};
-function load(path){return new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src=path})}
-async function assets(){
- const manifest=await fetch('./sprites/manifest.json').then(r=>r.json()).catch(()=>[]);
- for(const pack of [21,24,26,17]){
-  const files=manifest.map(x=>x.file).filter(f=>f.startsWith('pack'+pack+'_')).sort();
-  const images=await Promise.all(files.map(f=>load('./sprites/'+f)));sprites.set(pack,images.filter(Boolean));
- }
- bat=await load('./sprites/pack7_001.png');if(!bat)bat=await load('./sprites/pack10_001.png');
+const $=q=>document.querySelector(q),ctx=$('#screen').getContext('2d');ctx.imageSmoothingEnabled=false;
+const ids=['bat','17','19','21','24','26'];
+const batFiles=['pack7_001.png','pack10_001.png','pack10_002.png','pack11_001.png'];
+let chosen='21',playing=true,frame=0,frames=[],duration=600,lastTime=0,loadToken=0;
+const cache=new Map();
+function loadImage(file){if(cache.has(file))return cache.get(file);const p=new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src='./sprites/'+file});cache.set(file,p);return p}
+let manifest=[];
+async function init(){
+ try{const res=await fetch('./sprites/manifest.json');if(!res.ok)throw Error('manifest');manifest=(await res.json()).map(x=>x.file)}catch{manifest=[];$('#meta').textContent='Não foi possível carregar o catálogo de sprites.'}
+ await select('21');
 }
-function tick(){
- const now=NOW(),elapsed=Math.max(0,Math.min((now-s.last)/60000,60*24));s.last=now;
- if(elapsed>0){
-  s.age+=elapsed;
-  s.hunger=clamp(s.hunger-elapsed*.20);
-  s.bond=clamp(s.bond-elapsed*.09);
-  s.energy=clamp(s.energy+(s.sleep?elapsed*.65:-elapsed*.14));
-  if(s.hunger<25||s.bond<20||s.energy<15)s.neglect+=elapsed/12;
-  else if(s.hunger>50&&s.bond>45&&s.energy>35)s.care+=elapsed/35;
- }
- evolve();persist();
+async function select(id){
+ if(!ids.includes(id))return;
+ const token=++loadToken;chosen=id;frame=0;lastTime=0;
+ document.querySelectorAll('[data-id]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===id)));
+ $('#meta').textContent='Carregando '+(id==='bat'?'morcego':'pack '+id)+'…';
+ const files=(id==='bat'?batFiles:manifest.filter(f=>f.startsWith('pack'+id+'_')).sort()).filter(f=>manifest.includes(f));
+ const loaded=await Promise.all(files.map(async file=>({file,img:await loadImage(file)})));
+ if(token!==loadToken)return;
+ frames=loaded.filter(x=>x.img);
+ if(!frames.length)$('#meta').textContent='Nenhuma imagem disponível para este personagem.';
+ else updateMeta();
+ draw();
 }
-function evolve(){
- if(s.form!==21)return;
- const progress=s.feeds+s.plays+Math.floor(s.age/30);
- if(progress<12)return;
- if(s.neglect>=5||s.hunger<25||s.bond<25){s.form=17;say('Evolução: pack 17. Os cuidados foram insuficientes.');}
- else if(s.care>=2&&s.hunger>=40&&s.bond>=45){
-  s.form=s.plays>s.feeds?26:24;
-  say('Evolução! Seu companheiro tornou-se o personagem '+s.form+'.');
- }else if(progress>=22){s.form=17;say('Evolução: pack 17. Faltaram cuidados consistentes.');}
+function updateMeta(){const item=frames[frame];$('#meta').textContent=item?(chosen==='bat'?'Morcego':'Pack '+chosen)+' · '+(frame+1)+' / '+frames.length+' · '+item.file:'Sem quadros'}
+function step(delta){if(!frames.length)return;frame=(frame+delta+frames.length)%frames.length;updateMeta();draw()}
+function draw(){
+ ctx.fillStyle='#d7cfdf';ctx.fillRect(0,0,240,320);
+ ctx.fillStyle='#b6a9c2';ctx.fillRect(0,254,240,66);ctx.fillStyle='#a699b5';ctx.fillRect(0,254,240,2);
+ const item=frames[frame];if(!item)return;
+ const img=item.img;
+ const scale=Math.min(3,Math.floor(192/Math.max(img.width,img.height))||1);
+ const w=img.width*scale,h=img.height*scale;
+ ctx.drawImage(img,Math.floor((240-w)/2),Math.floor((256-h)/2)+8,w,h);
 }
-function doAction(type){
- tick();if(type!=='rest'&&s.sleep){say('Ele está dormindo. Acorde antes de interagir.');return}
- if(type==='feed'){s.hunger=clamp(s.hunger+22);s.energy=clamp(s.energy+2);s.feeds++;s.care+=s.hunger>=45?.5:0;say('Ele comeu!');}
- if(type==='play'){if(s.energy<12){say('Ele está cansado demais para brincar.');return}s.bond=clamp(s.bond+17);s.hunger=clamp(s.hunger-7);s.energy=clamp(s.energy-13);s.plays++;s.care+=.6;say('Vocês brincaram juntos!');}
- if(type==='rest'){s.sleep=!s.sleep;say(s.sleep?'Ele adormeceu.':'Ele acordou!');}
- if(type==='bat'){s.batVisits++;s.bond=clamp(s.bond+3);say('O morcego apareceu para uma visita.');}
- action=type;actionUntil=NOW()+1400;evolve();persist();renderStats();
-}
-function renderStats(){
- for(const k of ['hunger','bond','energy']){$('#'+k).value=s[k];$('#'+k+'Text').textContent=Math.round(s[k])+'%'}
- $('#stage').textContent='Forma atual: pack '+s.form+(s.form===21?' · jovem':' · evoluído');
- $('#growth').textContent=s.form===21?'Crescimento: '+Math.min(100,Math.round((s.feeds+s.plays+Math.floor(s.age/30))/12*100))+'% · Alimentações '+s.feeds+' · Brincadeiras '+s.plays:'Evolução concluída · novo personagem para reiniciar';
- $('#feed').disabled=s.sleep;$('#play').disabled=s.sleep;
-}
-function drawImage(img,x,y,w,h){if(!img)return;ctx.drawImage(img,x,y,w,h)}
-function render(time=0){
- if(time-lastRender<70){requestAnimationFrame(render);return}lastRender=time;
- ctx.fillStyle='#d9d2e2';ctx.fillRect(0,0,240,320);
- ctx.fillStyle='#b9adc8';ctx.fillRect(0,251,240,69);ctx.fillStyle='#a79bb9';ctx.fillRect(0,251,240,3);
- ctx.fillStyle='#41364c';ctx.font='bold 11px monospace';ctx.fillText('DAY '+(1+Math.floor(s.age/1440)),12,20);
- ctx.textAlign='right';ctx.fillText('FORM '+s.form,228,20);ctx.textAlign='left';
- const arr=sprites.get(s.form)||[];const active=NOW()<actionUntil?action:'idle';
- let index=0;
- if(s.sleep)index=s.form===21?10:s.form===24?5:s.form===17?8:0;
- else if(active==='feed')index=s.form===21?5:s.form===24?7:s.form===17?9:3;
- else if(active==='play')index=s.form===21?8:s.form===24?9:s.form===17?14:11;
- else index=Math.floor(time/850)%Math.min(arr.length,4);
- if(arr.length){const img=arr[Math.min(index,arr.length-1)];drawImage(img,47,97,146,146)}
- else{ctx.font='14px monospace';ctx.fillText('Carregando sprites...',27,160)}
- if(bat){const phase=Math.sin(time/550);const bx=165+Math.sin(time/1700)*22;const by=40+phase*8;drawImage(bat,bx,by,52,52)}
- ctx.font='11px monospace';ctx.fillStyle='#473952';ctx.fillText(s.sleep?'Zzz...':active==='idle'?'':active==='feed'?'NHAM!':active==='play'?'♥':'',18,75);
- requestAnimationFrame(render);
-}
-for(const type of ['feed','play','rest','bat'])$('#'+type).addEventListener('click',()=>doAction(type));
-$('#reset').addEventListener('click',()=>{if(!confirm('Apagar o progresso e começar com o personagem 21?'))return;s=fresh();say('Um novo personagem 21 nasceu!');persist();renderStats()});
-$('#fullscreen').addEventListener('click',()=>{if(!document.fullscreenElement)canvas.requestFullscreen?.();else document.exitFullscreen?.()});
-$('#status').textContent=notice;renderStats();assets().then(()=>say('Seu personagem está pronto!'));tick();renderStats();requestAnimationFrame(render);setInterval(()=>{tick();renderStats()},15000);
+function loop(t){if(playing&&frames.length>1&&t-lastTime>=duration){lastTime=t;step(1)}requestAnimationFrame(loop)}
+document.querySelectorAll('[data-id]').forEach(b=>b.addEventListener('click',()=>select(b.dataset.id)));
+$('#prev').addEventListener('click',()=>step(-1));$('#next').addEventListener('click',()=>step(1));
+$('#toggle').addEventListener('click',()=>{playing=!playing;$('#toggle').textContent=playing?'⏸ Pausar':'▶ Reproduzir';lastTime=performance.now()});
+$('#speed').addEventListener('input',e=>{duration=1500-Number(e.target.value)});
+init();requestAnimationFrame(loop);
 </script></body></html>
