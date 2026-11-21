@@ -15,9 +15,9 @@ const animationMap={
 21:{idle:[7],move:[0,1],happy:[5],satisfied:[5,7],dissatisfied:[4],angry:[11,15,8],feed:[5],play:[5],sleep:[7],alert:[6],observe:[2],blink:[9,10],mouth:[14]},
 26:{idle:[0,1,2,1],move:[3,4,5,6],feed:[7,8],play:[9,10,11],sleep:[0,1],alert:[12,13]},
 17:{idle:[1,4,17,4],move:[11,12,13,20],feed:[0,9,5],play:[14,15],sleep:[6,8,17],alert:[2,3,15]},
-19:{idle:[0,1,10,1],move:[4,7,12],feed:[2,3,9],play:[11,12,13],sleep:[0,10],alert:[8,14,15]}
+19:{idle:[0],move:[0,1,2],sleepy:[4],sleep:[5],happy:[3,6,7],satisfied:[3,6,7],feed:[3,6,7],afraid:[8,9],alert:[8,9],no:[10,11],call:[12,13],play:[14,15],angry:[18,19,21],dissatisfied:[10,11]}
 };
-// Pack 21: user-confirmed walking, happy, dissatisfied, angry and satisfied frames.\n// Remaining visual candidates: 002 observing/gesture, 006 facial close-up, 009-010 subtle idle variations, 014 red mouth/tongue.\n// 003, 012 and 013 explicitly excluded from all pack21 sequences. Unverified roles are provisional.
+// Pack 21: user-confirmed walking, happy, dissatisfied, angry and satisfied frames.\n// Remaining visual candidates: 002 observing/gesture, 006 facial close-up, 009-010 subtle idle variations, 014 red mouth/tongue.\n// 003, 012 and 013 explicitly excluded from all pack21 sequences.\n// Pack 19: user-confirmed groups only; idle 000 is a static fallback from walking.\n// Pack 19 excluded: 016, 017 and 020. No unclassified frames are used. Unverified roles are provisional.
 function senseBrain(){
  const cues={cyan:(100-s.food)/100,amber:(100-s.bond)/100,red:(100-s.energy)/100,ball:now()<actionUntil?1:0,sky:s.sleep?.05:.35};
  brain.stepWindow(cues,modulation,s.sleep?1:0,true,15);
@@ -28,7 +28,7 @@ function senseBrain(){
 }
 function animationFrames(){
  const map=animationMap[s.form]||animationMap[21];
- const requested=s.sleep?'sleep':now()<actionUntil?(action==='rest'?'sleep':action==='bat'?'alert':action):neuralState;
+ const requested=s.sleep?'sleep':now()<actionUntil?(action==='rest'?'sleep':action==='bat'?'alert':action):s.form===19&&s.energy<25?'sleepy':s.form===19&&s.food<22&&s.bond<35?'angry':s.form===19&&s.bond<32?'no':s.form===19&&s.food>75&&s.bond>70?'happy':neuralState;
  return map[requested]||map.idle;
 }
 const save=()=>{if(TEST19)return;try{localStorage.setItem(KEY,JSON.stringify(s))}catch{}};
