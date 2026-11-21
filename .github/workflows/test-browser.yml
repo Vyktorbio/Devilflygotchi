@@ -1,0 +1,52 @@
+name: Test original J2ME game in real browser
+on:
+  push:
+    paths: ['.github/workflows/test-browser.yml', 'index.html', 'emulator/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser testing tools
+        run: |
+          npm install --no-save playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Test actual original JAR runtime
+        shell: bash
+        run: |
+          cat > /tmp/check-game.cjs <<'EOF'
+          const {chromium}=require(process.cwd()+'/node_modules/playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+            const page=await browser.newPage({viewport:{width:420,height:850}});
+            const errors=[];
+            page.on('pageerror',e=>errors.push('PAGEERROR '+e.message));
+            page.on('console',m=>{if(m.type()==='error') errors.push('CONSOLE '+m.text())});
+            page.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url())});
+            page.on('requestfailed',r=>errors.push('NETWORK '+r.url()+' '+r.failure()?.errorText));
+            const url='https://vyktorbio.github.io/Devilflygotchi/emulator/run.html?jar=game.jar&fractionScale=1&mobile=1';
+            console.log('URL',url);
+            await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForTimeout(75000);
+            console.log('TITLE',await page.title());
+            console.log('LOADING',await page.locator('#loading').innerText().catch(()=>'?'));
+            console.log('CANVAS',JSON.stringify(await page.locator('#display').evaluate(e=>({width:e.width,height:e.height,display:getComputedStyle(e).display})).catch(e=>({error:e.message}))));
+            console.log('ERRORS',JSON.stringify(errors.slice(0,80),null,2));
+            await page.screenshot({path:'browser-test.png',fullPage:true});
+            await browser.close();
+            if(errors.some(x=>/HTTP 404|PAGEERROR|NETWORK/.test(x)) || errors.some(x=>/HTTP 403/.test(x)))process.exitCode=1;
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          EOF
+          node /tmp/check-game.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-test-screenshot
+          path: browser-test.png
