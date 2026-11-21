@@ -10,7 +10,7 @@
 <button data-id="17" aria-pressed="false">17</button>
 <button data-id="19" aria-pressed="false">19</button>
 <button data-id="21" aria-pressed="true">21</button>
-<button data-id="24" aria-pressed="false">24</button>
+
 <button data-id="26" aria-pressed="false">26</button>
 </div>
 <div class="screen"><canvas id="screen" width="240" height="320" aria-label="Animação do personagem selecionado"></canvas></div>
@@ -25,8 +25,8 @@
 </main><script>
 'use strict';
 const $=q=>document.querySelector(q),ctx=$('#screen').getContext('2d');ctx.imageSmoothingEnabled=false;
-const ids=['bat','17','19','21','24','26'];
-const batFiles=['pack7_001.png','pack10_001.png','pack10_002.png','pack11_001.png'];
+const ids=['bat','17','19','21','26'];
+const batFiles=['pack10_001.png','pack10_002.png'];
 let chosen='21',playing=true,frame=0,frames=[],duration=600,lastTime=0,loadToken=0;
 const cache=new Map();
 function loadImage(file){if(cache.has(file))return cache.get(file);const p=new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src='./sprites/'+file});cache.set(file,p);return p}
