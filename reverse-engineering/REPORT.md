@@ -82,3 +82,11 @@ Foi implementado `tools/decode_pack_archive.py` para extrair por offset e valida
 **Análise de `u.c()`**: a sequência de animação usa um índice `e` em uma tabela de offsets de **2 bytes little-endian** (`n[e*2] | n[e*2+1]<<8`). Para avançar por `z` registros, o método lê `n[offset+1]` como contador assinado e salta `8*contador+3` bytes por registro. O método `u.b()` decrementa `h` por atualização e interpreta valores de controle `-2` e `-3`. Isso é um formato diferente do arquivo de PNGs; **não** confundir os dois.
 
 A identificação do bloco binário `n`, sua origem em `GameMain` e a ligação de índices de desenho às imagens permanecem pendentes.
+
+## Fase 5 — parser executável do fluxo de animação
+
+Criado `tools/animation_stream.py`, parser somente-leitura para o fluxo binário de `u`. Decodifica offsets de sequência little-endian, cabeçalhos com duração e quantidade de comandos, comandos de desenho com passo de 8 bytes e índice de imagem little-endian assinado. Retorna marcadores de término sem presumir qual ação representam. Adicionados testes sintéticos em `tools/test_animation_stream.py`.
+
+**Verificação local:** 3 testes passaram (quadro com duração e índice, fluxo truncado e índice de sequência inválido). São testes de formato, **não** testes de paridade com o jogo.
+
+**Dependência crítica restante:** identificar e extrair o buffer `GameMain.K` preenchido por `q` ao carregar packs de tipo 1. O bytecode aloca 11216 bytes para `K` e o carregador `x.a([B, ...)` direciona conteúdo para esse buffer. Sem capturar o fluxo real e mapear `ae.v`/`ae.w`, não há evidência suficiente para reconstruir animações e regras originais.
