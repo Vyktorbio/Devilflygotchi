@@ -7,8 +7,6 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-  pages: write
-  id-token: write
 concurrency:
   group: devilflygotchi-pages-${{ github.ref }}
   cancel-in-progress: true
@@ -51,18 +49,34 @@ jobs:
           grep -q 'emulator/run.html?jar=game.jar' "${SITE}/index.html"
           unzip -t "${SITE}/emulator/jar/game.jar" >/dev/null
           echo "Pacote estático construído; a compatibilidade do jogo deve ser verificada no navegador."
-      - name: Configure GitHub Pages
-        if: github.event_name != 'pull_request'
-        uses: actions/configure-pages@v5
-      - name: Upload Pages artifact
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
+      - name: Save site for deployment
+        uses: actions/upload-artifact@v4
         with:
+          name: devilflygotchi-site
           path: ${{ runner.temp }}/site
-      - name: Deploy GitHub Pages
-        if: github.event_name != 'pull_request'
-        id: deployment
-        uses: actions/deploy-pages@v4
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download site
+        uses: actions/download-artifact@v4
+        with:
+          name: devilflygotchi-site
+          path: ./site
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+      - name: Deploy GitHub Pages
+        uses: actions/deploy-pages@v4
+        id: deployment
