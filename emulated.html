@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b10">
+  <meta name="description" content="Devilflygotchi: jogo Java ME original executado no navegador.">
+  <title>Devilflygotchi — jogo original</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:#0b0b10;color:#f0e9f4}
+    body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+    header{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));background:#17121e;border-bottom:1px solid #44344e}
+    .brand{flex:1;min-width:0}
+    h1{font-size:15px;line-height:1.25;letter-spacing:.03em;margin:0}
+    .sub{color:#b7a6c0;font-size:11px;margin-top:3px}
+    a,button{color:#f7edf9;font:inherit;font-size:12px;text-decoration:none;border:1px solid #735a80;background:#30253b;border-radius:8px;padding:8px 10px;cursor:pointer;white-space:nowrap}
+    a:hover,button:hover{background:#4b3957}
+    button:focus-visible,a:focus-visible{outline:2px solid #d3abed;outline-offset:2px}
+    #game{display:block;border:0;flex:1;width:100%;min-height:0;background:#000}
+    footer{padding:5px 12px calc(5px + env(safe-area-inset-bottom));text-align:center;font-size:11px;color:#9e8da8;background:#17121e}
+    footer a{border:0;background:none;padding:0;color:#c3a9d4;text-decoration:underline;font-size:inherit}
+    @media(max-width:490px){header{gap:7px}h1{font-size:13px}a,button{padding:7px;font-size:11px}.sub{font-size:10px}}
+    @media(max-width:360px){header{flex-wrap:wrap}.brand{flex-basis:100%}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>DEVILFLYGOTCHI</h1>
+      <div class="sub">Jogo Java ME original · 240 × 320</div>
+    </div>
+    <button id="reload" type="button" title="Reiniciar o emulador (sem apagar o progresso)">Reiniciar</button>
+    <a id="standalone" href="./emulator/run.html?jar=game.jar&amp;fractionScale=1&amp;mobile=1" target="_blank" rel="noopener">Tela própria</a>
+    <a href="./legacy.html" title="Abrir a versão experimental anterior">Protótipo</a>
+  </header>
+  <iframe id="game" title="Tamagotchi Monster Java ME" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin" src="./emulator/run.html?jar=game.jar&amp;fractionScale=1&amp;mobile=1"></iframe>
+  <footer>
+    Primeira inicialização: requer internet e pode ser lenta. Os botões do celular aparecem na tela.
+    <a href="./Devil_240x320.jar" download>JAR</a>
+    · <a href="https://github.com/zb3/freej2me-web" target="_blank" rel="noopener">Emulador FreeJ2ME-Web</a>
+  </footer>
+  <script>
+    (() => {
+      'use strict';
+      const frame = document.getElementById('game');
+      const standalone = document.getElementById('standalone');
+      const isTouch = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+      const url = './emulator/run.html?jar=game.jar&fractionScale=1' + (isTouch ? '&mobile=1' : '');
+      frame.src = url;
+      standalone.href = url;
+      document.getElementById('reload').addEventListener('click', () => {
+        frame.src = url;
+      });
+    })();
+  </script>
+</body>
+</html>
