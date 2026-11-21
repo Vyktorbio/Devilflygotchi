@@ -1,6 +1,8 @@
-name: Deploy Devilflygotchi
+name: Deploy Devilflygotchi — original Java ME
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 permissions:
@@ -8,19 +10,59 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: pages
+  group: devilflygotchi-pages-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  deploy:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Devilflygotchi
+        uses: actions/checkout@v4
+      - name: Verify original game
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -t Devil_240x320.jar >/dev/null
+          unzip -p Devil_240x320.jar META-INF/MANIFEST.MF | grep -q '^MIDlet-1:'
+      - name: Download pinned FreeJ2ME-Web
+        shell: bash
+        env:
+          FREEJ2ME_COMMIT: c19416e75cbc15f9a27f7e967ee81cb108761e30
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/zb3/freej2me-web.git "${RUNNER_TEMP}/freej2me-web"
+          git -C "${RUNNER_TEMP}/freej2me-web" fetch --depth 1 origin "${FREEJ2ME_COMMIT}"
+          git -C "${RUNNER_TEMP}/freej2me-web" checkout --detach "${FREEJ2ME_COMMIT}"
+      - name: Build static site with original JAR
+        shell: bash
+        run: |
+          set -euo pipefail
+          SITE="${RUNNER_TEMP}/site"
+          mkdir -p "${SITE}/emulator/jar"
+          rsync -a --exclude='.git' --exclude='.github' --exclude='site' ./ "${SITE}/"
+          cp -a "${RUNNER_TEMP}/freej2me-web/web/." "${SITE}/emulator/"
+          cp "${RUNNER_TEMP}/freej2me-web/LICENSE" "${SITE}/emulator/LICENSE"
+          cp Devil_240x320.jar "${SITE}/emulator/jar/game.jar"
+          test -s "${SITE}/emulator/run.html"
+          test -s "${SITE}/emulator/freej2me-web.jar"
+          test -s "${SITE}/emulator/init.zip"
+          test -s "${SITE}/emulator/jar/game.jar"
+          test -s "${SITE}/legacy.html"
+          grep -q 'emulator/run.html?jar=game.jar' "${SITE}/index.html"
+          unzip -t "${SITE}/emulator/jar/game.jar" >/dev/null
+          echo "Pacote estático construído; a compatibilidade do jogo deve ser verificada no navegador."
+      - name: Configure GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/site
+      - name: Deploy GitHub Pages
+        if: github.event_name != 'pull_request'
+        id: deployment
+        uses: actions/deploy-pages@v4
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - id: deployment
-        uses: actions/deploy-pages@v4
