@@ -50,7 +50,7 @@ jobs:
           assert os.path.getsize('sprites/q070.png')>100
           assert os.path.getsize('sprites/q078.png')>100
           PY
-      - name: Download pinned FreeJ2ME-Web
+      - name: Export authentic animation and script binaries\n        shell: bash\n        run: |\n          set -euo pipefail\n          python3 tools/export_original_packs.py Devil_240x320.jar original-data\n          python3 - <<'PY'\n          import json\n          a=json.load(open('original-data/pack0.json'))\n          b=json.load(open('original-data/pack1.json'))\n          assert a['count']==59, a['count']\n          assert b['count']==61, b['count']\n          print('Verified original packs:', a['count'], b['count'])\n          PY\n      - name: Download pinned FreeJ2ME-Web
         shell: bash
         env:
           FREEJ2ME_COMMIT: c19416e75cbc15f9a27f7e967ee81cb108761e30
@@ -73,7 +73,7 @@ jobs:
           test -s "${SITE}/emulator/freej2me-web.jar"
           test -s "${SITE}/emulator/init.zip"
           test -s "${SITE}/emulator/jar/game.jar"
-          test -s "${SITE}/legacy.html"
+          test -s "${SITE}/legacy.html"\n          test -s "${SITE}/original-data.html"\n          test -s "${SITE}/original-data/pack0.json"\n          test -s "${SITE}/original-data/pack1.json"
           grep -q 'Reconstrução HTML5' "${SITE}/index.html"
           test -s "${SITE}/sprites/q070.png"
           test -s "${SITE}/sprites/q078.png"
@@ -91,7 +91,7 @@ jobs:
           cp "${RUNNER_TEMP}/freej2me-web/LICENSE" emulator/LICENSE
           cp Devil_240x320.jar emulator/jar/game.jar
           touch .nojekyll
-          git add -f emulator sprites .nojekyll
+          git add -f emulator sprites original-data .nojekyll
           if ! git diff --cached --quiet; then
             git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Publish original J2ME emulator assets for GitHub Pages'
             git push origin HEAD:main
