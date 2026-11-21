@@ -22,6 +22,34 @@ jobs:
           set -euo pipefail
           unzip -t Devil_240x320.jar >/dev/null
           unzip -p Devil_240x320.jar META-INF/MANIFEST.MF | grep -q '^MIDlet-1:'
+      - name: Extract original PNG sprites from JAR packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, struct, zipfile
+          z=zipfile.ZipFile('Devil_240x320.jar')
+          os.makedirs('sprites',exist_ok=True)
+          def base(n):
+              if 2<=n<=5:return n-2
+              if n<=11:return {6:4,7:6,8:12,9:29,10:43,11:51}[n]
+              if n<=15:return 70+(n-12)*2
+              return 78+(n-16)*25
+          count=0
+          for n in range(2,28):
+              d=z.read(f'pack{n}.bin')
+              cnt=struct.unpack('>H',d[:2])[0]
+              offsets=struct.unpack('>'+str(cnt+1)+'I',d[2:2+4*(cnt+1)])
+              for i in range(cnt):
+                  blob=d[offsets[i]:offsets[i+1]]
+                  if blob.startswith(b'\\x89PNG'):
+                      with open(f'sprites/q{base(n)+i:03d}.png','wb') as out:out.write(blob)
+                      count+=1
+          print('Extracted original sprites:',count)
+          assert count>=300
+          assert os.path.getsize('sprites/q070.png')>100
+          assert os.path.getsize('sprites/q078.png')>100
+          PY
       - name: Download pinned FreeJ2ME-Web
         shell: bash
         env:
@@ -46,7 +74,9 @@ jobs:
           test -s "${SITE}/emulator/init.zip"
           test -s "${SITE}/emulator/jar/game.jar"
           test -s "${SITE}/legacy.html"
-          grep -q 'emulator/run.html?jar=game.jar' "${SITE}/index.html"
+          grep -q 'Reconstrução HTML5' "${SITE}/index.html"
+          test -s "${SITE}/sprites/q070.png"
+          test -s "${SITE}/sprites/q078.png"
           unzip -t "${SITE}/emulator/jar/game.jar" >/dev/null
           echo "Pacote estático construído; a compatibilidade do jogo deve ser verificada no navegador."
       - name: Keep emulator assets in the repository for branch-based Pages
@@ -61,7 +91,7 @@ jobs:
           cp "${RUNNER_TEMP}/freej2me-web/LICENSE" emulator/LICENSE
           cp Devil_240x320.jar emulator/jar/game.jar
           touch .nojekyll
-          git add -f emulator .nojekyll
+          git add -f emulator sprites .nojekyll
           if ! git diff --cached --quiet; then
             git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Publish original J2ME emulator assets for GitHub Pages'
             git push origin HEAD:main
@@ -102,7 +132,7 @@ jobs:
         run: |
           set -euo pipefail
           BASE="https://vyktorbio.github.io/Devilflygotchi"
-          for file in emulator/run.html emulator/freej2me-web.jar emulator/jar/game.jar; do
+          for file in index.html sprites/q070.png sprites/q078.png emulator/run.html emulator/freej2me-web.jar emulator/jar/game.jar; do
             echo "Checking ${BASE}/${file}"
             curl --fail --location --silent --show-error --retry 12 --retry-delay 8 --retry-all-errors --output /dev/null "${BASE}/${file}"
           done
