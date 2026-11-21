@@ -74,7 +74,7 @@ jobs:
           test -s "${SITE}/emulator/init.zip"
           test -s "${SITE}/emulator/jar/game.jar"
           test -s "${SITE}/legacy.html"\n          test -s "${SITE}/original-data.html"\n          test -s "${SITE}/original-data/pack0.json"\n          test -s "${SITE}/original-data/pack1.json"
-          grep -q 'Reconstrução HTML5' "${SITE}/index.html"
+          grep -q 'Jogo Java ME original' "${SITE}/index.html"\n          test -s "${SITE}/reconstruction.html"
           test -s "${SITE}/sprites/q070.png"
           test -s "${SITE}/sprites/q078.png"
           unzip -t "${SITE}/emulator/jar/game.jar" >/dev/null
