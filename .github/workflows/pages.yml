@@ -18,15 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch FreeJ2ME-Web emulator
-        run: |
-          git clone --depth 1 https://github.com/zb3/freej2me-web.git /tmp/freej2me-web
-          mkdir -p emulator
-          cp -a /tmp/freej2me-web/web/. emulator/
-          mkdir -p emulator/apps
-          if [ -d game-packages ]; then cp game-packages/*.zip emulator/apps/ 2>/dev/null || true; fi
-      - name: Check game asset
-        run: test -f Devil_240x320.jar
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
