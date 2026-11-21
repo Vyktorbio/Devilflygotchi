@@ -5,6 +5,7 @@ on:
     paths:
       - Devil_240x320.jar
       - tools/analyze_jar.py
+      - tools/extract_sprites.py
       - .github/workflows/analyze-game.yml
 permissions:
   contents: read
@@ -30,6 +31,14 @@ jobs:
               out=subprocess.run(['javap','-classpath',jar,'-c','-p',name],capture_output=True,text=True)
               pathlib.Path('port-analysis/bytecode',name.replace('.','_')+'.txt').write_text(out.stdout+'\\n'+out.stderr,encoding='utf-8')
           PY
+      - name: Extract embedded PNG sprites
+        run: python tools/extract_sprites.py
+      - name: Upload extracted sprites
+        uses: actions/upload-artifact@v4
+        with:
+          name: devilflygotchi-web-sprites
+          path: web-assets/
+          retention-days: 30
       - name: Upload inspection files
         uses: actions/upload-artifact@v4
         with:
