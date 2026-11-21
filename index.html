@@ -1,11 +1,34 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#16111c"><title>Devilflygotchi</title><style>
-*{box-sizing:border-box}body{margin:0;background:#16111c;color:#f6f0f9;font:15px system-ui,sans-serif}main{max-width:500px;margin:auto;padding:16px}h1{font-size:23px;letter-spacing:1px;margin:8px 0}small,.hint{color:#bdb0c8;font-size:12px}header{display:flex;align-items:center;justify-content:space-between}canvas{display:block;width:min(100%,390px);height:auto;aspect-ratio:3/4;margin:14px auto;image-rendering:pixelated;background:#d7cfdf;border:7px solid #695577;border-radius:18px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#30243c;border-radius:10px;padding:9px;font-size:12px}progress{display:block;width:100%;accent-color:#b897e5;margin-top:5px}.actions{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:13px 0}button{background:#483553;border:1px solid #816991;border-radius:11px;color:#fff;padding:12px 8px;font:inherit;cursor:pointer}button:disabled{opacity:.4}button:focus-visible{outline:2px solid #e4c8ff}#message{text-align:center;min-height:42px;margin:10px 0;line-height:1.5}#stage{text-align:center;color:#d6c2e6;font-size:13px}.hint{line-height:1.6}a{color:#d5b3ff}</style></head><body><main><header><h1>DEVILFLYGOTCHI</h1><small>NOVO CICLO · ALFA</small></header><canvas id="screen" width="240" height="320" aria-label="Personagem Devilflygotchi"></canvas><div id="stage"></div><p id="message" role="status" aria-live="polite"></p><div class="stats"><div class="stat">🍬 Saciedade<progress id="food" max="100"></progress><span id="foodValue"></span></div><div class="stat">♥ Vínculo<progress id="bond" max="100"></progress><span id="bondValue"></span></div><div class="stat">⚡ Energia<progress id="energy" max="100"></progress><span id="energyValue"></span></div></div><div class="actions"><button id="feed">🍬 Alimentar</button><button id="play">♥ Brincar</button><button id="rest">💤 Dormir / acordar</button><button id="bat">🦇 Morcego</button><button id="new">↻ Novo ciclo</button><button id="full">⛶ Tela cheia</button></div><p class="hint">O personagem nasce no pack 21. Com bons cuidados evolui para 26; com cuidados insuficientes, para 17. Quando morre, assume a forma 19 e pode ser cuidado novamente em uma segunda oportunidade. O morcego faz parte do cenário. Estas regras são uma criação nova, não uma reprodução confirmada do JAR.</p><p class="hint"><a href="./Devil_240x320.jar">JAR original preservado</a></p></main><script>
+*{box-sizing:border-box}body{margin:0;background:#16111c;color:#f6f0f9;font:15px system-ui,sans-serif}main{max-width:500px;margin:auto;padding:16px}h1{font-size:23px;letter-spacing:1px;margin:8px 0}small,.hint{color:#bdb0c8;font-size:12px}header{display:flex;align-items:center;justify-content:space-between}canvas{display:block;width:min(100%,390px);height:auto;aspect-ratio:3/4;margin:14px auto;image-rendering:pixelated;background:#d7cfdf;border:7px solid #695577;border-radius:18px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#30243c;border-radius:10px;padding:9px;font-size:12px}progress{display:block;width:100%;accent-color:#b897e5;margin-top:5px}.actions{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:13px 0}button{background:#483553;border:1px solid #816991;border-radius:11px;color:#fff;padding:12px 8px;font:inherit;cursor:pointer}button:disabled{opacity:.4}button:focus-visible{outline:2px solid #e4c8ff}#message{text-align:center;min-height:42px;margin:10px 0;line-height:1.5}#stage{text-align:center;color:#d6c2e6;font-size:13px}.hint{line-height:1.6}a{color:#d5b3ff}</style><script src="./neural-engine.js"></script></head><body><main><header><h1>DEVILFLYGOTCHI</h1><small>NOVO CICLO · ALFA</small></header><canvas id="screen" width="240" height="320" aria-label="Personagem Devilflygotchi"></canvas><div id="stage"></div><p id="message" role="status" aria-live="polite"></p><div class="stats"><div class="stat">🍬 Saciedade<progress id="food" max="100"></progress><span id="foodValue"></span></div><div class="stat">♥ Vínculo<progress id="bond" max="100"></progress><span id="bondValue"></span></div><div class="stat">⚡ Energia<progress id="energy" max="100"></progress><span id="energyValue"></span></div></div><div class="actions"><button id="feed">🍬 Alimentar</button><button id="play">♥ Brincar</button><button id="rest">💤 Dormir / acordar</button><button id="bat">🦇 Morcego</button><button id="new">↻ Novo ciclo</button><button id="full">⛶ Tela cheia</button></div><p class="hint">O personagem nasce no pack 21. Com bons cuidados evolui para 26; com cuidados insuficientes, para 17. Quando morre, assume a forma 19 e pode ser cuidado novamente em uma segunda oportunidade. O morcego faz parte do cenário. O cérebro neural da mosca influencia os estados e os sprites seguem mapeamentos visuais provisórios. Estas regras são uma criação nova, não uma reprodução confirmada do JAR.</p><p class="hint"><a href="./Devil_240x320.jar">JAR original preservado</a></p></main><script>
 'use strict';
 const $=q=>document.querySelector(q),canvas=$('#screen'),ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
 const KEY='devilflygotchi-life-v1',now=()=>Date.now(),clamp=n=>Math.max(0,Math.min(100,n));
 const fresh=()=>({form:21,life:1,food:78,bond:68,energy:82,care:0,neglect:0,interactions:0,age:0,sleep:false,batVisits:0,last:now(),created:now(),finished:false});
 let s;try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');s=saved&&[21,26,17,19].includes(saved.form)?{...fresh(),...saved}:fresh()}catch{s=fresh()}
 let sprites=new Map(),bat=[],action='idle',actionUntil=0,message='Seu bichinho nasceu!',frame=0,lastFrame=0;
+
+const brain=new ArchitecturalFlyBrain('drosophila',47);
+let neuralState='idle',modulation=0;
+const animationMap={
+21:{idle:[0,7,10,7],move:[1,2,4,9],feed:[5,3],play:[8,11,9],sleep:[10,8],alert:[5,9]},
+26:{idle:[0,1,2,1],move:[3,4,5,6],feed:[7,8],play:[9,10,11],sleep:[0,1],alert:[12,13]},
+17:{idle:[1,4,17,4],move:[11,12,13,20],feed:[0,9,5],play:[14,15],sleep:[6,8,17],alert:[2,3,15]},
+19:{idle:[0,1,10,1],move:[4,7,12],feed:[2,3,9],play:[11,12,13],sleep:[0,10],alert:[8,14,15]}
+};
+// Visual hypotheses; not verified original JAR animation sequences.
+function senseBrain(){
+ const cues={cyan:(100-s.food)/100,amber:(100-s.bond)/100,red:(100-s.energy)/100,ball:now()<actionUntil?1:0,sky:s.sleep?.05:.35};
+ brain.stepWindow(cues,modulation,s.sleep?1:0,true,15);
+ modulation*=.72;
+ const rates=brain.mbonRate;
+ const values={feed:cues.cyan*(1+Math.max(0,rates[0])),play:cues.amber*(1+Math.max(0,rates[1])),sleep:cues.red*(1+Math.max(0,rates[2])),move:.3+Math.max(0,rates[4]),idle:.35};
+ neuralState=s.sleep?'sleep':Object.entries(values).sort((a,b)=>b[1]-a[1])[0][0];
+}
+function animationFrames(){
+ const map=animationMap[s.form]||animationMap[21];
+ const requested=s.sleep?'sleep':now()<actionUntil?(action==='rest'?'sleep':action==='bat'?'alert':action):neuralState;
+ return map[requested]||map.idle;
+}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch{}};
 function say(t){message=t;$('#message').textContent=t}
 function load(file){return new Promise(resolve=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>resolve(null);i.src='./sprites/'+file})}
@@ -23,10 +46,10 @@ else if(s.form===19&&(s.food<=0||s.neglect>=20)){s.finished=true;s.sleep=false;s
 else evolve()}save();stats()}
 function interact(type){update();if(s.finished){say('O ciclo terminou. Inicie um novo ciclo.');return}
 if(type!=='rest'&&type!=='bat'&&s.sleep){say('Ele está dormindo. Acorde para interagir.');return}
-if(type==='feed'){s.food=clamp(s.food+23);s.energy=clamp(s.energy+3);s.interactions++;s.care+=.5;say('Ele comeu!')}
-if(type==='play'){if(s.energy<12){say('Ele precisa descansar.');return}s.bond=clamp(s.bond+18);s.food=clamp(s.food-7);s.energy=clamp(s.energy-13);s.interactions++;s.care+=.5;say('Vocês brincaram!')}
+if(type==='feed'){modulation=.8;s.food=clamp(s.food+23);s.energy=clamp(s.energy+3);s.interactions++;s.care+=.5;say('Ele comeu!')}
+if(type==='play'){modulation=.65;if(s.energy<12){say('Ele precisa descansar.');return}s.bond=clamp(s.bond+18);s.food=clamp(s.food-7);s.energy=clamp(s.energy-13);s.interactions++;s.care+=.5;say('Vocês brincaram!')}
 if(type==='rest'){s.sleep=!s.sleep;say(s.sleep?'Ele está dormindo.':'Ele acordou.')}
-if(type==='bat'){s.batVisits++;s.bond=clamp(s.bond+3);say('O morcego veio visitar!')}
+if(type==='bat'){modulation=.2;s.batVisits++;s.bond=clamp(s.bond+3);say('O morcego veio visitar!')}
 
 action=type;actionUntil=now()+1200;evolve();save();stats()}
 function stats(){for(const k of ['food','bond','energy']){$('#'+k).value=s[k];$('#'+k+'Value').textContent=Math.round(s[k])+'%'}
@@ -34,13 +57,13 @@ $('#stage').textContent='Forma '+s.form+' · '+(s.form===21?'Inicial':s.form===2
 for(const k of ['feed','play','rest'])$('#'+k).disabled=s.finished||(s.sleep&&k!=='rest')}
 function draw(t){ctx.fillStyle='#d8d0e1';ctx.fillRect(0,0,240,320);ctx.fillStyle='#b7acc5';ctx.fillRect(0,252,240,68);ctx.fillStyle='#a397b4';ctx.fillRect(0,252,240,3);ctx.fillStyle='#48384f';ctx.font='bold 11px monospace';ctx.fillText('VIDA '+s.life,12,22);ctx.fillText('FORMA '+s.form,170,22);
 if(t-lastFrame>550){frame++;lastFrame=t}const arr=sprites.get(s.form)||[];
-if(arr.length){let index=frame%Math.min(arr.length,4);if(s.sleep)index=s.form===21?10:s.form===17?8:s.form===19?10:0;else if(now()<actionUntil){if(action==='feed')index=s.form===21?5:s.form===17?9:s.form===19?2:3;else if(action==='play')index=s.form===21?8:s.form===17?14:s.form===19?11:9}
-const img=arr[Math.min(index,arr.length-1)];ctx.drawImage(img,44,99,152,152)}else{ctx.font='13px monospace';ctx.fillText('Carregando...',65,160)}
+if(arr.length){const sequence=animationFrames();const index=sequence[frame%sequence.length];const img=arr[Math.min(index,arr.length-1)];ctx.drawImage(img,44,99,152,152)}
+else{ctx.font='13px monospace';ctx.fillText('Carregando...',65,160)}
 if(bat.length){const img=bat[Math.floor(t/350)%bat.length];ctx.drawImage(img,161+Math.sin(t/900)*15,41+Math.sin(t/410)*9,55,55)}
 if(s.finished){ctx.fillStyle='rgba(25,17,31,.7)';ctx.fillRect(0,275,240,30);ctx.fillStyle='#fff';ctx.fillText('CICLO CONCLUIDO',66,294)}
 requestAnimationFrame(draw)}
 for(const type of ['feed','play','rest','bat'])$('#'+type).addEventListener('click',()=>interact(type));
 $('#new').addEventListener('click',()=>{if(!confirm('Começar um novo ciclo com o personagem 21?'))return;s=fresh();frame=0;say('Um novo bichinho nasceu!');save();stats()});
 $('#full').addEventListener('click',()=>{if(!document.fullscreenElement)canvas.requestFullscreen?.();else document.exitFullscreen?.()});
-say(message);update();assets();requestAnimationFrame(draw);setInterval(update,15000);
+say(message);update();assets();senseBrain();requestAnimationFrame(draw);setInterval(()=>{update();senseBrain()},1500);
 </script></body></html>
