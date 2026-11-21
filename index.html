@@ -27,7 +27,7 @@ if(type==='feed'){s.food=clamp(s.food+23);s.energy=clamp(s.energy+3);s.interacti
 if(type==='play'){if(s.energy<12){say('Ele precisa descansar.');return}s.bond=clamp(s.bond+18);s.food=clamp(s.food-7);s.energy=clamp(s.energy-13);s.interactions++;s.care+=.5;say('Vocês brincaram!')}
 if(type==='rest'){s.sleep=!s.sleep;say(s.sleep?'Ele está dormindo.':'Ele acordou.')}
 if(type==='bat'){s.batVisits++;s.bond=clamp(s.bond+3);say('O morcego veio visitar!')}
-if(s.form===19&&s.interactions>=12){s.finished=true;say('Você completou a segunda oportunidade de cuidar do personagem 19! Pode começar um novo ciclo.')}
+
 action=type;actionUntil=now()+1200;evolve();save();stats()}
 function stats(){for(const k of ['food','bond','energy']){$('#'+k).value=s[k];$('#'+k+'Value').textContent=Math.round(s[k])+'%'}
 $('#stage').textContent='Forma '+s.form+' · '+(s.form===21?'Inicial':s.form===26?'Evolução saudável':s.form===17?'Evolução por negligência':'Segunda oportunidade')+' · Vida '+s.life;
