@@ -30,7 +30,7 @@ with zipfile.ZipFile(JAR) as z:
     resources=OUT/"resources"
     resources.mkdir(exist_ok=True)
     for i in z.infolist():
-        if i.is_dir() or classify(i.filename) not in {"image","audio"}: continue
+        if i.is_dir() or classify(i.filename) == "java_bytecode": continue
         target=(resources/i.filename).resolve()
         if not target.is_relative_to(resources.resolve()): continue
         target.parent.mkdir(parents=True,exist_ok=True)
@@ -42,3 +42,6 @@ with (OUT/"files.csv").open("w",encoding="utf-8",newline="") as f:
     writer.writeheader()
     for e in entries: writer.writerow(e)
 print(json.dumps({"entries":summary["entries"],"types":summary["types"]},indent=2))
+
+# Preserve original binary packs and all non-class resources for the web port.
+# Bytecode inspection is performed by the CI workflow using javap.
