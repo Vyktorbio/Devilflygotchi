@@ -1,20 +1,28 @@
-# Devilflygotchi
+# Devilflygotchi — Java ME
 
-Página de acesso ao emulador [FreeJ2ME-Web](https://github.com/zb3/freej2me-web) para executar arquivos Java ME (J2ME) do próprio usuário.
+O jogo modificado está em `Devil_240x320.jar` na raiz. O GitHub Actions baixa o emulador [FreeJ2ME-Web](https://github.com/zb3/freej2me-web), copia a pasta `web` para `emulator/` e publica tudo no GitHub Pages.
 
-## Como usar
+## Publicação
 
-1. Abra a página do GitHub Pages.
-2. No emulador, clique em **Select JAR file** e selecione seu arquivo local.
-3. Se necessário, configure a resolução **240 × 320** e experimente tipos de telefone diferentes.
-4. Instale e execute o jogo pelo menu do emulador.
+Em **Settings → Pages → Build and deployment**, escolha **GitHub Actions**. Depois abra **Actions → Deploy Devilflygotchi** e acompanhe a execução. A página esperada é https://vyktorbio.github.io/Devilflygotchi/.
 
-A página incorpora a interface pública de um emulador de terceiros. **Não inclui o jogo comercial nem distribui seu JAR**. Não há garantia de compatibilidade com um jogo específico; esta primeira versão é um launcher, não um port independente. O emulador pode usar armazenamento local para preservar dados.
+## Primeiro teste e inicialização automática
 
-## GitHub Pages
+O FreeJ2ME-Web **não aceita simplesmente o caminho do JAR para inicializar**. Para preparar o pacote oficial:
 
-Em **Settings → Pages**, escolha **Deploy from a branch**, branch **main**, pasta **/(root)**. A URL esperada é https://vyktorbio.github.io/Devilflygotchi/ depois da publicação.
+1. Abra a página e, no emulador, instale seu `Devil_240x320.jar` usando **Select JAR file**.
+2. Ajuste tela para 240×320, tipo de telefone e opções até o jogo funcionar.
+3. Use **Export Data** no emulador.
+4. Inicie o jogo e anote o parâmetro `app` exibido no endereço.
+5. No ZIP exportado, localize a pasta cujo nome é esse ID.
+6. Comprima **o conteúdo dessa pasta**, não a pasta externa, em `[app_id].zip`.
+7. Envie o ZIP para a pasta `game-packages/` deste repositório.
+8. O workflow copiará o ZIP para `emulator/apps/`. O endereço `emulator/run.html?app=[app_id]&fractionScale=1` poderá iniciar o jogo diretamente.
 
-## Créditos
+Até concluir os passos acima, a página abre o launcher local do emulador, não o jogo automaticamente.
 
-Emulador: [zb3/freej2me-web](https://github.com/zb3/freej2me-web). Projeto e direitos de terceiros permanecem com seus respectivos titulares.
+**Nota:** A compatibilidade do JAR modificado ainda não foi confirmada. O FreeJ2ME-Web depende de CheerpJ e de acesso à internet; alguns servidores podem não servir corretamente requisições HTTP Range exigidas pelo emulador.
+
+## Fontes
+
+- [FreeJ2ME-Web — README e instruções de embedding](https://github.com/zb3/freej2me-web#embedding)
