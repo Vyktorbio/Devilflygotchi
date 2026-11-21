@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+MIDlet-Name: Tamagotchi Monster
+MIDlet-Version: 1.1.4
+MIDlet-Vendor: Namco
+MIDlet-1: Tamagotchi Monster, /icon.png, GameMain
+MicroEdition-Profile: MIDP-2.0
+MicroEdition-Configuration: CLDC-1.0
+MIDlet-Icon: /icon.png
+MIDlet-Data-Size: 256
+Created-By: Metaflow
+NAMCO-DEFAULT-LANGUAGE: en
+NAMCO-AVAILABLE-LANGUAGES: de_en_es_fr_it
+
+

@@ -1,0 +1,9 @@
+Summary for Devil_240x320.jar
+Decompiled with CFR 0.152
+
+
+GameMain
+----------------------------
+
+j(int )
+  Unable to fully structure code
