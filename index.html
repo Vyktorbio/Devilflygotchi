@@ -10,12 +10,12 @@ let sprites=new Map(),bat=[],action='idle',actionUntil=0,message='Seu bichinho n
 const brain=new ArchitecturalFlyBrain('drosophila',47);
 let neuralState='idle',modulation=0;
 const animationMap={
-21:{idle:[0,7,10,7],move:[1,2,4,9],feed:[5,3],play:[8,11,9],sleep:[10,8],alert:[5,9]},
+21:{idle:[7],move:[0,1,12],happy:[5,13],feed:[3],play:[5,13],sleep:[10,8],alert:[9]},
 26:{idle:[0,1,2,1],move:[3,4,5,6],feed:[7,8],play:[9,10,11],sleep:[0,1],alert:[12,13]},
 17:{idle:[1,4,17,4],move:[11,12,13,20],feed:[0,9,5],play:[14,15],sleep:[6,8,17],alert:[2,3,15]},
 19:{idle:[0,1,10,1],move:[4,7,12],feed:[2,3,9],play:[11,12,13],sleep:[0,10],alert:[8,14,15]}
 };
-// Visual hypotheses; not verified original JAR animation sequences.
+// Pack 21: idle, move and happy frames specified by the user. Other actions and packs remain provisional.
 function senseBrain(){
  const cues={cyan:(100-s.food)/100,amber:(100-s.bond)/100,red:(100-s.energy)/100,ball:now()<actionUntil?1:0,sky:s.sleep?.05:.35};
  brain.stepWindow(cues,modulation,s.sleep?1:0,true,15);
