@@ -1,0 +1,26 @@
+name: Analyze Java ME game
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - Devil_240x320.jar
+      - tools/analyze_jar.py
+      - .github/workflows/analyze-game.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Extract assets and inventory
+        run: python tools/analyze_jar.py
+      - name: Upload inspection files
+        uses: actions/upload-artifact@v4
+        with:
+          name: devilflygotchi-port-analysis
+          path: port-analysis/
+          retention-days: 30
