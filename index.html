@@ -1,30 +1,90 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111018"><title>Devilflygotchi — HTML5</title>
-<style>:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#100d17;color:#eee}*{box-sizing:border-box}body{margin:0}main{max-width:540px;margin:auto;padding:16px}header{display:flex;align-items:center;justify-content:space-between;gap:12px}h1{font-size:21px;margin:8px 0}small,.note{color:#aaa1b7;font-size:12px}select,button{background:#2e263d;border:1px solid #625576;border-radius:10px;color:#fff;padding:11px;font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible{outline:2px solid #b6a2ed}canvas{display:block;margin:15px auto;width:min(100%,360px);height:auto;aspect-ratio:3/4;image-rendering:pixelated;border:6px solid #534564;border-radius:18px;background:#c8c1d8;touch-action:manipulation}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{background:#201a2b;border-radius:10px;padding:9px;font-size:12px}.stat meter{display:block;width:100%;margin-top:6px}.actions{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.actions button{min-height:47px}#message{min-height:25px;text-align:center}label{display:block;font-size:13px;margin-top:12px}.note{line-height:1.5}a{color:#c5b2ff}</style></head><body><main><header><h1>DEVILFLYGOTCHI</h1><small>HTML5 · beta</small></header><label for="family">Criatura</label><select id="family" style="width:100%"></select><canvas id="screen" width="240" height="320" aria-label="Arena do Devilflygotchi"></canvas><div class="stats"><div class="stat">🍬 Saciedade <meter id="food" min="0" max="100"></meter></div><div class="stat">♥ Humor <meter id="mood" min="0" max="100"></meter></div><div class="stat">⚡ Energia <meter id="energy" min="0" max="100"></meter></div></div><p id="message" role="status"></p><section class="inspector"><label for="frame">Inspeção dos sprites originais — <output id="frameLabel">0/0</output></label><input id="frame" type="range" min="0" max="0" value="0" style="width:100%"><div class="actions"><button id="previous">◀ Quadro anterior</button><button id="next">Próximo quadro ▶</button></div><label><input id="inspect" type="checkbox"> Fixar quadro selecionado (inspeção)</label></section><nav class="actions"><button id="feed">🍬 Alimentar</button><button id="play">🎲 Brincar</button><button id="sleep">💤 Dormir</button><button id="wake">☀️ Acordar</button><button id="reset">↻ Reiniciar</button><button id="fullscreen">⛶ Tela cheia</button></nav><p class="note">Versão nativa experimental: sprites originais, inspeção quadro a quadro, necessidades e salvamento local. A animação automática ainda é provisória; as regras são provisórias e ainda não reproduzem integralmente o Java ME. Criaturas selecionadas: packs 17, 19, 21 e 26.</p><p class="note"><a href="./Devil_240x320.jar">Arquivo JAR preservado</a></p></main><script>
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#17131e"><title>Devilflygotchi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#17131e;color:#f3edf8;font:15px system-ui,sans-serif}main{max-width:490px;margin:auto;padding:18px}h1{font-size:24px;letter-spacing:2px;margin:4px 0}header{display:flex;justify-content:space-between;align-items:center}.tag{font-size:11px;color:#c6b8d5}canvas{display:block;width:min(100%,390px);aspect-ratio:3/4;height:auto;margin:16px auto;background:#ded7e8;border:7px solid #655477;border-radius:16px;image-rendering:pixelated}#status{min-height:45px;text-align:center;color:#e6d7f0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#2a2234;border-radius:10px;padding:9px;font-size:12px}.stat strong{display:block;font-size:15px;margin:4px 0}progress{width:100%;accent-color:#ae8ce0}.actions{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}button{font:inherit;color:#fff;background:#443353;border:1px solid #806a94;border-radius:11px;padding:13px 8px;cursor:pointer}button:disabled{opacity:.45}button:focus-visible{outline:3px solid #e3c7ff}.details{margin-top:18px;font-size:13px;color:#c8bdd1;line-height:1.6}a{color:#d7b9ff}#batLabel{font-size:12px;text-align:center;color:#a99db5}
+</style></head><body><main><header><h1>DEVILFLYGOTCHI</h1><span class="tag">NOVA GERAÇÃO · ALFA</span></header>
+<canvas id="screen" width="240" height="320" role="img" aria-label="Personagem e morcego na arena"></canvas>
+<div id="status" role="status" aria-live="polite"></div>
+<div class="stats"><div class="stat">🍬 Fome<strong id="hungerText"></strong><progress id="hunger" max="100"></progress></div><div class="stat">♥ Amizade<strong id="bondText"></strong><progress id="bond" max="100"></progress></div><div class="stat">⚡ Energia<strong id="energyText"></strong><progress id="energy" max="100"></progress></div></div>
+<div class="actions"><button id="feed">🍬 Alimentar</button><button id="play">♥ Brincar</button><button id="rest">💤 Dormir / acordar</button><button id="bat">🦇 Visitar morcego</button><button id="reset">↻ Novo personagem</button><button id="fullscreen">⛶ Tela cheia</button></div>
+<p id="batLabel">O morcego faz parte do mundo e não é uma evolução.</p>
+<div class="details"><div id="stage"></div><div id="growth"></div><p>Recomeço do jogo com regras próprias: nasce no <b>pack 21</b>, evolui para <b>24</b> ou <b>26</b> quando bem cuidado, ou para <b>17</b> se negligenciado. As regras desta versão são novas, não recuperadas do JAR.</p><a href="./Devil_240x320.jar">JAR original preservado</a></div>
+</main><script>
 'use strict';
-const $=q=>document.querySelector(q),canvas=$('#screen'),ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
-const excluded=new Set([2,3,4,5,12,13,14,15]),key='devilflygotchi-native-v2';
-const defaults={family:'',food:75,mood:75,energy:80,asleep:false,last:Date.now()};
-let state;try{state={...defaults,...JSON.parse(localStorage.getItem(key)||'{}')}}catch{state={...defaults}}
-const packs=new Map(),cache=new Map();let actionUntil=0,action='idle',lastTick=performance.now(),frameIndex=0;
-function clamp(n){return Math.max(0,Math.min(100,n))}
-function save(){state.last=Date.now();try{localStorage.setItem(key,JSON.stringify(state))}catch{}}
-function message(s){$('#message').textContent=s}
-function stats(){for(const id of ['food','mood','energy'])$('#'+id).value=state[id]}
-function updateInspector(){const frames=packs.get(state.family)||[];frameIndex=Math.min(Math.max(0,frameIndex),Math.max(0,frames.length-1));$('#frame').max=Math.max(0,frames.length-1);$('#frame').value=frameIndex;$('#frameLabel').textContent=frames.length?(frameIndex+1)+'/'+frames.length+' · '+frames[frameIndex]:'0/0'}
-function image(name){if(!cache.has(name)){const im=new Image();im.src='sprites/'+name;cache.set(name,im)}return cache.get(name)}
-function tick(sec){if(state.asleep){state.energy=clamp(state.energy+sec*.028);state.food=clamp(state.food-sec*.002)}else{state.food=clamp(state.food-sec*.005);state.energy=clamp(state.energy-sec*.003);state.mood=clamp(state.mood-sec*.002)}}
-function render(now){const sec=Math.min(2,(now-lastTick)/1000);lastTick=now;tick(sec);stats();
-ctx.fillStyle='#c7bfd7';ctx.fillRect(0,0,240,320);ctx.fillStyle='#a69bb9';ctx.fillRect(0,254,240,66);ctx.fillStyle='#e5dfee';ctx.fillRect(8,9,224,35);ctx.fillStyle='#332743';ctx.font='bold 13px monospace';ctx.textAlign='center';ctx.fillText('DEVILFLYGOTCHI',120,30);
-const frames=packs.get(state.family)||[];if(frames.length){let frame=state.asleep?Math.floor(now/950):now<actionUntil?Math.floor(now/120):Math.floor(now/440);const f=frames[$('#inspect').checked?frameIndex:frame%frames.length];const im=image(f);if(im.complete&&im.naturalWidth){const w=Math.min(125,Math.max(60,im.naturalWidth*2.4)),h=Math.min(125,Math.max(60,im.naturalHeight*2.4));const bob=state.asleep?0:Math.sin(now/430)*4;ctx.drawImage(im,120-w/2,175-h/2+bob,w,h)}else{ctx.font='12px monospace';ctx.fillText('Carregando sprite...',120,175)}}else{ctx.font='12px monospace';ctx.fillText('Sprites indisponíveis',120,170)}
-ctx.fillStyle='#332743';ctx.font='12px monospace';ctx.fillText(state.asleep?'Z z z':state.food<20?'Com fome':state.energy<20?'Cansado':state.mood<20?'Entediado':'Acordado',120,282);requestAnimationFrame(render)}
-function act(type){if(state.asleep&&type!=='wake'&&type!=='sleep'){message('Está dormindo. Acorde primeiro.');return}if(type==='feed'){state.food=clamp(state.food+20);state.mood=clamp(state.mood+3);message('Alimentado!')}if(type==='play'){state.mood=clamp(state.mood+18);state.energy=clamp(state.energy-10);state.food=clamp(state.food-5);message('Hora de brincar!')}if(type==='sleep'){state.asleep=true;message('Dormindo...')}if(type==='wake'){state.asleep=false;message('Acordou!')}action=type;actionUntil=performance.now()+1600;stats();save()}
-for(const type of ['feed','play','sleep','wake'])$('#'+type).onclick=()=>act(type);
-$('#family').onchange=e=>{state.family=e.target.value;frameIndex=0;updateInspector();save();message('Criatura selecionada.')};
-$('#frame').oninput=e=>{frameIndex=Number(e.target.value);$('#inspect').checked=true;updateInspector()};
-$('#previous').onclick=()=>{frameIndex=Math.max(0,frameIndex-1);$('#inspect').checked=true;updateInspector()};
-$('#next').onclick=()=>{frameIndex=Math.min((packs.get(state.family)||[]).length-1,frameIndex+1);$('#inspect').checked=true;updateInspector()};;
-$('#reset').onclick=()=>{if(confirm('Apagar o progresso deste protótipo?')){state={...defaults,family:state.family};save();stats();message('Progresso reiniciado.')}};
-$('#fullscreen').onclick=()=>{if(canvas.requestFullscreen)canvas.requestFullscreen().catch(()=>message('Tela cheia indisponível neste navegador.'))};
-document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});window.addEventListener('pagehide',save);
-fetch('sprites/manifest.json').then(r=>{if(!r.ok)throw Error('Manifesto HTTP '+r.status);return r.json()}).then(items=>{for(const item of items){const name=typeof item==='string'?item:item.file;const m=/^(pack(\d+))_\d+\.png$/i.exec(name||'');if(!m||![17,19,21,26].includes(Number(m[2])))continue;if(!packs.has(m[1]))packs.set(m[1],[]);packs.get(m[1]).push(name)}const names=[...packs.keys()].sort((a,b)=>Number(a.slice(4))-Number(b.slice(4)));for(const name of names){packs.get(name).sort();const opt=document.createElement('option');opt.value=name;opt.textContent='Criatura '+name.replace('pack','');$('#family').append(opt)}if(!packs.has(state.family))state.family=names[0]||'';$('#family').value=state.family;updateInspector();const elapsed=Math.min(86400,Math.max(0,(Date.now()-state.last)/1000));tick(elapsed);stats();save();message(names.length?'Escolha sua criatura e comece a cuidar dela.':'Nenhuma criatura disponível.');}).catch(e=>message('Erro ao carregar sprites: '+e.message));setInterval(save,15000);requestAnimationFrame(render);
+const $=s=>document.querySelector(s), canvas=$('#screen'),ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;
+const KEY='devilflygotchi-rebuild-v1', NOW=()=>Date.now(), clamp=v=>Math.max(0,Math.min(100,v));
+const fresh=()=>({form:21,hunger:80,bond:65,energy:85,age:0,care:0,neglect:0,feeds:0,plays:0,sleep:false,batVisits:0,last:NOW(),created:NOW()});
+let s;try{s={...fresh(),...JSON.parse(localStorage.getItem(KEY)||'null')}}catch{s=fresh()}
+if(![21,24,26,17].includes(s.form))s=fresh();
+let sprites=new Map(),bat=null,pose=0,action='idle',actionUntil=0,notice='Cuide do seu novo companheiro!',lastRender=0;
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch{}};
+const say=t=>{notice=t;$('#status').textContent=t};
+function load(path){return new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src=path})}
+async function assets(){
+ const manifest=await fetch('./sprites/manifest.json').then(r=>r.json()).catch(()=>[]);
+ for(const pack of [21,24,26,17]){
+  const files=manifest.map(x=>x.file).filter(f=>f.startsWith('pack'+pack+'_')).sort();
+  const images=await Promise.all(files.map(f=>load('./sprites/'+f)));sprites.set(pack,images.filter(Boolean));
+ }
+ bat=await load('./sprites/pack7_001.png');if(!bat)bat=await load('./sprites/pack10_001.png');
+}
+function tick(){
+ const now=NOW(),elapsed=Math.max(0,Math.min((now-s.last)/60000,60*24));s.last=now;
+ if(elapsed>0){
+  s.age+=elapsed;
+  s.hunger=clamp(s.hunger-elapsed*.20);
+  s.bond=clamp(s.bond-elapsed*.09);
+  s.energy=clamp(s.energy+(s.sleep?elapsed*.65:-elapsed*.14));
+  if(s.hunger<25||s.bond<20||s.energy<15)s.neglect+=elapsed/12;
+  else if(s.hunger>50&&s.bond>45&&s.energy>35)s.care+=elapsed/35;
+ }
+ evolve();persist();
+}
+function evolve(){
+ if(s.form!==21)return;
+ const progress=s.feeds+s.plays+Math.floor(s.age/30);
+ if(progress<12)return;
+ if(s.neglect>=5||s.hunger<25||s.bond<25){s.form=17;say('Evolução: pack 17. Os cuidados foram insuficientes.');}
+ else if(s.care>=2&&s.hunger>=40&&s.bond>=45){
+  s.form=s.plays>s.feeds?26:24;
+  say('Evolução! Seu companheiro tornou-se o personagem '+s.form+'.');
+ }else if(progress>=22){s.form=17;say('Evolução: pack 17. Faltaram cuidados consistentes.');}
+}
+function doAction(type){
+ tick();if(type!=='rest'&&s.sleep){say('Ele está dormindo. Acorde antes de interagir.');return}
+ if(type==='feed'){s.hunger=clamp(s.hunger+22);s.energy=clamp(s.energy+2);s.feeds++;s.care+=s.hunger>=45?.5:0;say('Ele comeu!');}
+ if(type==='play'){if(s.energy<12){say('Ele está cansado demais para brincar.');return}s.bond=clamp(s.bond+17);s.hunger=clamp(s.hunger-7);s.energy=clamp(s.energy-13);s.plays++;s.care+=.6;say('Vocês brincaram juntos!');}
+ if(type==='rest'){s.sleep=!s.sleep;say(s.sleep?'Ele adormeceu.':'Ele acordou!');}
+ if(type==='bat'){s.batVisits++;s.bond=clamp(s.bond+3);say('O morcego apareceu para uma visita.');}
+ action=type;actionUntil=NOW()+1400;evolve();persist();renderStats();
+}
+function renderStats(){
+ for(const k of ['hunger','bond','energy']){$('#'+k).value=s[k];$('#'+k+'Text').textContent=Math.round(s[k])+'%'}
+ $('#stage').textContent='Forma atual: pack '+s.form+(s.form===21?' · jovem':' · evoluído');
+ $('#growth').textContent=s.form===21?'Crescimento: '+Math.min(100,Math.round((s.feeds+s.plays+Math.floor(s.age/30))/12*100))+'% · Alimentações '+s.feeds+' · Brincadeiras '+s.plays:'Evolução concluída · novo personagem para reiniciar';
+ $('#feed').disabled=s.sleep;$('#play').disabled=s.sleep;
+}
+function drawImage(img,x,y,w,h){if(!img)return;ctx.drawImage(img,x,y,w,h)}
+function render(time=0){
+ if(time-lastRender<70){requestAnimationFrame(render);return}lastRender=time;
+ ctx.fillStyle='#d9d2e2';ctx.fillRect(0,0,240,320);
+ ctx.fillStyle='#b9adc8';ctx.fillRect(0,251,240,69);ctx.fillStyle='#a79bb9';ctx.fillRect(0,251,240,3);
+ ctx.fillStyle='#41364c';ctx.font='bold 11px monospace';ctx.fillText('DAY '+(1+Math.floor(s.age/1440)),12,20);
+ ctx.textAlign='right';ctx.fillText('FORM '+s.form,228,20);ctx.textAlign='left';
+ const arr=sprites.get(s.form)||[];const active=NOW()<actionUntil?action:'idle';
+ let index=0;
+ if(s.sleep)index=s.form===21?10:s.form===24?5:s.form===17?8:0;
+ else if(active==='feed')index=s.form===21?5:s.form===24?7:s.form===17?9:3;
+ else if(active==='play')index=s.form===21?8:s.form===24?9:s.form===17?14:11;
+ else index=Math.floor(time/850)%Math.min(arr.length,4);
+ if(arr.length){const img=arr[Math.min(index,arr.length-1)];drawImage(img,47,97,146,146)}
+ else{ctx.font='14px monospace';ctx.fillText('Carregando sprites...',27,160)}
+ if(bat){const phase=Math.sin(time/550);const bx=165+Math.sin(time/1700)*22;const by=40+phase*8;drawImage(bat,bx,by,52,52)}
+ ctx.font='11px monospace';ctx.fillStyle='#473952';ctx.fillText(s.sleep?'Zzz...':active==='idle'?'':active==='feed'?'NHAM!':active==='play'?'♥':'',18,75);
+ requestAnimationFrame(render);
+}
+for(const type of ['feed','play','rest','bat'])$('#'+type).addEventListener('click',()=>doAction(type));
+$('#reset').addEventListener('click',()=>{if(!confirm('Apagar o progresso e começar com o personagem 21?'))return;s=fresh();say('Um novo personagem 21 nasceu!');persist();renderStats()});
+$('#fullscreen').addEventListener('click',()=>{if(!document.fullscreenElement)canvas.requestFullscreen?.();else document.exitFullscreen?.()});
+$('#status').textContent=notice;renderStats();assets().then(()=>say('Seu personagem está pronto!'));tick();renderStats();requestAnimationFrame(render);setInterval(()=>{tick();renderStats()},15000);
 </script></body></html>
