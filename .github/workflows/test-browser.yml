@@ -38,11 +38,17 @@ jobs:
             await page.waitForTimeout(75000);
             console.log('TITLE',await page.title());
             console.log('LOADING',await page.locator('#loading').innerText().catch(()=>'?'));
-            console.log('CANVAS',JSON.stringify(await page.locator('#display').evaluate(e=>({width:e.width,height:e.height,display:getComputedStyle(e).display})).catch(e=>({error:e.message}))));
+            const canvas=await page.locator('#display').evaluate(e=>{
+              const data=e.getContext('2d').getImageData(0,0,e.width,e.height).data;
+              const colors=new Set();
+              for(let i=0;i<data.length;i+=400)colors.add(data[i]+','+data[i+1]+','+data[i+2]);
+              return {width:e.width,height:e.height,display:getComputedStyle(e).display,colorCount:colors.size};
+            });
+            console.log('CANVAS',JSON.stringify(canvas));
             console.log('ERRORS',JSON.stringify(errors.slice(0,80),null,2));
             await page.screenshot({path:'browser-test.png',fullPage:true});
             await browser.close();
-            if(errors.some(x=>/HTTP 404|PAGEERROR|NETWORK/.test(x)) || errors.some(x=>/HTTP 403/.test(x)))process.exitCode=1;
+            if(canvas.width!==240 || canvas.height!==320 || canvas.display==='none' || canvas.colorCount<2 || errors.some(x=>/HTTP 404|PAGEERROR|HTTP 403/.test(x)))process.exitCode=1;
           })().catch(e=>{console.error(e);process.exitCode=1});
           EOF
           node /tmp/check-game.cjs
