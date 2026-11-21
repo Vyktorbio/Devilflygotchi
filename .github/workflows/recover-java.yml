@@ -1,0 +1,51 @@
+name: Recover original Java ME source
+on:
+  workflow_dispatch:
+  push:
+    paths: ['Devil_240x320.jar', '.github/workflows/recover-java.yml']
+permissions:
+  contents: write
+jobs:
+  decompile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Inspect original JAR
+        run: |
+          set -euo pipefail
+          unzip -t Devil_240x320.jar >/dev/null
+          mkdir -p recovered/java recovered/reports
+          unzip -p Devil_240x320.jar META-INF/MANIFEST.MF > recovered/reports/manifest.txt
+          unzip -Z1 Devil_240x320.jar | grep '\.class$' | sort > recovered/reports/classes.txt
+      - name: Recover Java source with CFR
+        run: |
+          set -euo pipefail
+          curl -fLsS --retry 4 -o /tmp/cfr.jar https://www.benf.org/other/cfr/cfr-0.152.jar
+          java -jar /tmp/cfr.jar Devil_240x320.jar --outputdir recovered/java --silent true 2>&1 | tee recovered/reports/decompiler.log
+          test "$(find recovered/java -name '*.java' | wc -l)" -ge 25
+          cat > recovered/README.md <<'EOF'
+          # Recovered Java ME sources
+
+          Generated from the unmodified original Devil_240x320.jar using CFR 0.152.
+          These are reconstructed and possibly obfuscated Java sources, not the
+          original developer's source tree. They still depend on Java ME CLDC/MIDP
+          and are not yet a native desktop, Android or web port. The next stage
+          is to replace Java ME APIs and verify the original game behavior.
+          EOF
+      - name: Commit recovered sources
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git add -f recovered
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Recover Java ME sources from original game'
+            git push origin HEAD:main
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: devilflygotchi-recovered-java
+          path: recovered
