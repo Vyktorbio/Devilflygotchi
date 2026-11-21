@@ -41,3 +41,27 @@ A seleção solicitada é **pack17, pack19, pack21 e pack26**. O `pack26` é o p
 ## Limites de direitos
 
 O manifesto atribui o jogo-base à Namco. A engenharia reversa técnica não altera automaticamente a titularidade de imagens, músicas ou código. Antes de redistribuir comercialmente uma conversão fiel, verificar as permissões aplicáveis.
+
+
+## Fase 2 — análise de métodos com evidências do bytecode
+
+**Máquina de animação da classe `u` (confirmado):**
+- `u.a(y, byte[], int, int, int, int)` (linhas 203–259 da desmontagem) recebe o renderizador `y`, uma sequência binária, índice inicial, posição X/Y e um parâmetro adicional. Inicializa contadores `z` e `y`, lê o byte inicial para `h`, marca `a=true` e chama `g()`.
+- `u.a(int)` (linhas 308–335) reinicia os contadores, troca o índice de sequência `e` e lê o primeiro byte da nova sequência. Portanto, existe **seleção explícita de sequência**, não apenas rotação contínua de PNGs.
+- `u.b()` (linhas 348–486) é uma rotina de avanço: verifica se a animação está ativa, respeita bits de estado `l & 4` e `l & 8`, decrementa o contador `h` e, ao zerar, incrementa os contadores `z` e `y`, consulta bytes e chama `g()`. **A duração dos quadros vem dos dados binários**, não de um intervalo fixo.
+- `u.a(Graphics, Image[])` (linhas 487+) é a rotina de desenho. A ligação exata entre índices binários e imagens ainda precisa ser reconstruída.
+
+**Persistência original (confirmado):**
+- A classe `l` chama `javax.microedition.rms.RecordStore.openRecordStore`, `getRecord`, `setRecord`, `addRecord` e `closeRecordStore` (linhas 122–469). Logo, o jogo usa **RMS (Record Management System)** do Java ME, e não armazenamento de navegador. O formato binário salvo ainda não está decodificado.
+
+**Estado e relógio (confirmado):**
+- `GameMain.b(long)` (linhas 3666–3692) itera por 33 índices e chama `z.a(index, delta)` e `z.b(index, delta)`, depois ajusta o relógio via `k()` e `c(long)`.
+- `GameMain.c(long)` (linhas 3693–3716) divide um inteiro de 64 bits entre os campos de estado 9 e 10 de `g`.
+- `GameMain.k()` (linhas 3717–3745) recompõe esse valor de 64 bits a partir dos campos 9 e 10. Isso comprova um **contador/valor temporal de 64 bits persistido em dois inteiros**, mas sua unidade física ainda não está estabelecida.
+- `GameMain.S()` (linhas 3295+) lê `g.c(11)`, calcula um deslocamento de tabela por multiplicação por 10 e escreve índices 26–29 a partir de `ae.r`. Trata-se de uma **tabela de parâmetros dependente do estado 11**; atribuir nomes como espécie, idade ou evolução sem mais evidências seria especulativo.
+
+**Correção de hipótese anterior:** a classe `g` é acessada como estrutura de estado numérico por `GameMain`; a classe `l` é a que efetivamente demonstra chamadas ao RMS. O protótipo HTML5 atual não reproduz esses mecanismos.
+
+### Próxima etapa de implementação
+
+Decodificar a sequência binária consumida por `u`, identificar onde `GameMain` inicializa as sequências e construir testes de avanço de quadros a partir de amostras reais. Em paralelo, rastrear as chamadas `l` → `RecordStore` e os campos `g` para reconstruir o formato do save. Só substituir as regras do navegador após confirmar os vínculos.
