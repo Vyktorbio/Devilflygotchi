@@ -42,7 +42,7 @@ jobs:
               offsets=struct.unpack('>'+str(cnt+1)+'I',d[2:2+4*(cnt+1)])
               for i in range(cnt):
                   blob=d[offsets[i]:offsets[i+1]]
-                  if blob.startswith(b'\\x89PNG'):
+                  if blob.startswith(bytes([137,80,78,71])):
                       with open(f'sprites/q{base(n)+i:03d}.png','wb') as out:out.write(blob)
                       count+=1
           print('Extracted original sprites:',count)
