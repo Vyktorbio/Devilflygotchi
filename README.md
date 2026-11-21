@@ -1,28 +1,27 @@
-# Devilflygotchi — Java ME
+# Devilflygotchi — jogo Java ME original no navegador
 
-O jogo modificado está em `Devil_240x320.jar` na raiz. O GitHub Actions baixa o emulador [FreeJ2ME-Web](https://github.com/zb3/freej2me-web), copia a pasta `web` para `emulator/` e publica tudo no GitHub Pages.
+O arquivo **`Devil_240x320.jar`** na raiz é o jogo original **Tamagotchi Monster** (MIDP 2.0 / CLDC 1.0; 240 × 320). A página principal agora executa **o bytecode do JAR**, por meio de [FreeJ2ME-Web](https://github.com/zb3/freej2me-web), em vez de reconstruir sprites e comportamentos por aproximação.
 
-## Publicação
+- **Jogo original:** https://vyktorbio.github.io/Devilflygotchi/
+- **Protótipo HTML5 anterior (preservado):** https://vyktorbio.github.io/Devilflygotchi/legacy.html
+- **Emulador direto:** https://vyktorbio.github.io/Devilflygotchi/emulator/run.html?jar=game.jar&fractionScale=1&mobile=1
 
-Em **Settings → Pages → Build and deployment**, escolha **GitHub Actions**. Depois abra **Actions → Deploy Devilflygotchi** e acompanhe a execução. A página esperada é https://vyktorbio.github.io/Devilflygotchi/.
+## Como funciona
 
-## Primeiro teste e inicialização automática
+O workflow `.github/workflows/pages.yml` monta o site e publica uma cópia do diretório `web` do FreeJ2ME-Web em `emulator/`, incluindo os arquivos necessários para rodá-lo. Ele também copia o JAR original para `emulator/jar/game.jar`. O emulador suporta o modo direto `run.html?jar=game.jar` (ver implementação de `web/src/main.js` no FreeJ2ME-Web). Não é necessário criar tabelas de sprites, reimplementar as regras de cuidado ou importar manualmente um ZIP para **este modo de inicialização**.
 
-O FreeJ2ME-Web **não aceita simplesmente o caminho do JAR para inicializar**. Para preparar o pacote oficial:
+A dependência do emulador está fixada no commit `c19416e75cbc15f9a27f7e967ee81cb108761e30`; o repositório do jogo conserva seu arquivo original intacto. A página web experimental anterior foi salva integralmente em `legacy.html`.
 
-1. Abra a página e, no emulador, instale seu `Devil_240x320.jar` usando **Select JAR file**.
-2. Ajuste tela para 240×320, tipo de telefone e opções até o jogo funcionar.
-3. Use **Export Data** no emulador.
-4. Inicie o jogo e anote o parâmetro `app` exibido no endereço.
-5. No ZIP exportado, localize a pasta cujo nome é esse ID.
-6. Comprima **o conteúdo dessa pasta**, não a pasta externa, em `[app_id].zip`.
-7. Envie o ZIP para a pasta `game-packages/` deste repositório.
-8. O workflow copiará o ZIP para `emulator/apps/`. O endereço `emulator/run.html?app=[app_id]&fractionScale=1` poderá iniciar o jogo diretamente.
+## Controles
 
-Até concluir os passos acima, a página abre o launcher local do emulador, não o jogo automaticamente.
+Em celulares com tela sensível ao toque, o emulador exibe o teclado virtual. No computador, use as setas, Enter, F1/F2 (teclas de função do celular) e Esc para as opções do emulador. O botão **Reiniciar** recarrega o emulador, sem apagar deliberadamente os dados salvos. **Tela própria** abre o jogo sem a moldura da página principal.
 
-**Nota:** A compatibilidade do JAR modificado ainda não foi confirmada. O FreeJ2ME-Web depende de CheerpJ e de acesso à internet; alguns servidores podem não servir corretamente requisições HTTP Range exigidas pelo emulador.
+## Estado da validação
 
-## Fontes
+O build verifica a integridade ZIP do JAR, o manifesto `MIDlet-1` e a presença dos arquivos necessários do emulador. **Isso não prova que o jogo abriu, que o áudio funcionou nem que o salvamento foi recuperado.** A validação real exige abrir a página após o deploy e testar nascimento, animações, alimentação, sono, evolução e persistência. O FreeJ2ME-Web usa CheerpJ e requer internet; depende também de requisições HTTP Range adequadamente atendidas pelo servidor.
 
-- [FreeJ2ME-Web — README e instruções de embedding](https://github.com/zb3/freej2me-web#embedding)
+Se a página não iniciar, tente o endereço do emulador direto. É possível variar opções de telefone, áudio e tela pressionando Esc, conforme as [instruções do FreeJ2ME-Web](https://github.com/zb3/freej2me-web#game-doesnt-work).
+
+## Licenças
+
+O FreeJ2ME-Web é desenvolvido por zb3 e distribuído conforme sua licença, copiada para `emulator/LICENSE` durante o build. O manifesto do jogo-base declara Namco como fornecedor. Disponibilizar o emulador e o JAR não transfere os direitos autorais dos recursos do jogo.
