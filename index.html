@@ -10,7 +10,7 @@ let sprites=new Map(),bat=[],action='idle',actionUntil=0,message='Seu bichinho n
 const brain=new ArchitecturalFlyBrain('drosophila',47);
 let neuralState='idle',modulation=0;
 const animationMap={
-21:{idle:[7],move:[0,1,12],happy:[5,13],feed:[3],play:[5,13],sleep:[10,8],alert:[9]},
+21:{idle:[7],move:[0,1,12],happy:[5,13],satisfied:[5,7],dissatisfied:[4],angry:[11,15,8],feed:[3],play:[5,13],sleep:[10,8],alert:[9]},
 26:{idle:[0,1,2,1],move:[3,4,5,6],feed:[7,8],play:[9,10,11],sleep:[0,1],alert:[12,13]},
 17:{idle:[1,4,17,4],move:[11,12,13,20],feed:[0,9,5],play:[14,15],sleep:[6,8,17],alert:[2,3,15]},
 19:{idle:[0,1,10,1],move:[4,7,12],feed:[2,3,9],play:[11,12,13],sleep:[0,10],alert:[8,14,15]}
@@ -22,7 +22,7 @@ function senseBrain(){
  modulation*=.72;
  const rates=brain.mbonRate;
  const values={feed:cues.cyan*(1+Math.max(0,rates[0])),play:cues.amber*(1+Math.max(0,rates[1])),sleep:cues.red*(1+Math.max(0,rates[2])),move:.3+Math.max(0,rates[4]),idle:.35};
- neuralState=s.sleep?'sleep':Object.entries(values).sort((a,b)=>b[1]-a[1])[0][0];
+ neuralState=s.sleep?'sleep':(s.form===21&&s.food<18&&s.bond<35?'angry':s.form===21&&(s.food<38||s.bond<32)?'dissatisfied':s.form===21&&s.food>75&&s.bond>70?'satisfied':Object.entries(values).sort((a,b)=>b[1]-a[1])[0][0]);
 }
 function animationFrames(){
  const map=animationMap[s.form]||animationMap[21];
