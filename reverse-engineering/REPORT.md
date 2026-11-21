@@ -65,3 +65,20 @@ O manifesto atribui o jogo-base à Namco. A engenharia reversa técnica não alt
 ### Próxima etapa de implementação
 
 Decodificar a sequência binária consumida por `u`, identificar onde `GameMain` inicializa as sequências e construir testes de avanço de quadros a partir de amostras reais. Em paralelo, rastrear as chamadas `l` → `RecordStore` e os campos `g` para reconstruir o formato do save. Só substituir as regras do navegador após confirmar os vínculos.
+
+## Fase 3 — formato dos arquivos `packNN.bin` (validado em arquivos reais)
+
+O cabeçalho começa com um **inteiro big-endian de 16 bits** indicando a quantidade de posições da tabela. Nos quatro arquivos estudados esse valor é 25 (`00 19`). Seguem **25 deslocamentos absolutos big-endian de 32 bits**. Cada entrada não vazia aponta para um PNG completo, terminado pelo chunk `IEND`. Entradas finais vazias repetem o deslocamento final (tamanho total do arquivo). Exemplo: `pack17.bin` começa com `00 19 00 00 00 6a`, isto é, 25 posições e primeira imagem no offset decimal 106.
+
+| Arquivo | Tamanho (bytes) | Slots | PNGs validados |
+|---|---:|---:|---:|
+| `pack17.bin` | 7826 | 25 | 21 |
+| `pack19.bin` | 9266 | 25 | 22 |
+| `pack21.bin` | 6700 | 25 | 16 |
+| `pack26.bin` | 11822 | 25 | 25 |
+
+Foi implementado `tools/decode_pack_archive.py` para extrair por offset e validar os limites dos chunks PNG, sem busca heurística de assinaturas. A execução local sobre os quatro arquivos originais extraiu **84 PNGs**, e dois testes locais passaram (arquivos reais e entrada truncada). As imagens são recursos gráficos, **não** uma tabela de sequências temporais; a classe `u` consome outro bloco de bytes para o controle de quadros.
+
+**Análise de `u.c()`**: a sequência de animação usa um índice `e` em uma tabela de offsets de **2 bytes little-endian** (`n[e*2] | n[e*2+1]<<8`). Para avançar por `z` registros, o método lê `n[offset+1]` como contador assinado e salta `8*contador+3` bytes por registro. O método `u.b()` decrementa `h` por atualização e interpreta valores de controle `-2` e `-3`. Isso é um formato diferente do arquivo de PNGs; **não** confundir os dois.
+
+A identificação do bloco binário `n`, sua origem em `GameMain` e a ligação de índices de desenho às imagens permanecem pendentes.
