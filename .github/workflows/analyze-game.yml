@@ -18,6 +18,18 @@ jobs:
           python-version: '3.12'
       - name: Extract assets and inventory
         run: python tools/analyze_jar.py
+      - name: Disassemble Java bytecode for porting
+        run: |
+          mkdir -p port-analysis/bytecode
+          python - <<'PY'
+          import zipfile, pathlib, subprocess
+          jar='Devil_240x320.jar'
+          with zipfile.ZipFile(jar) as z:
+              names=[n[:-6].replace('/','.') for n in z.namelist() if n.endswith('.class')]
+          for name in names:
+              out=subprocess.run(['javap','-classpath',jar,'-c','-p',name],capture_output=True,text=True)
+              pathlib.Path('port-analysis/bytecode',name.replace('.','_')+'.txt').write_text(out.stdout+'\\n'+out.stderr,encoding='utf-8')
+          PY
       - name: Upload inspection files
         uses: actions/upload-artifact@v4
         with:
